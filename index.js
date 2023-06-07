@@ -51,7 +51,20 @@ async function run() {
       res.send(result);
     })
 
-   
+    // class related apis
+    app.get('/class', async (req, res) => {
+      const query = {};
+      const options = {
+        sort: { "TotalStudents": -1 },
+      };
+      const result = await classCollection.find(query, options).limit(6).toArray();
+      res.send(result);
+    })
+      // all classes
+    app.get('/classes', async (req, res) => {
+      const result = await classCollection.find().toArray();
+      res.send(result);
+    })
 
 
     // Send a ping to confirm a successful connection
