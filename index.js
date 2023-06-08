@@ -25,7 +25,7 @@ const verifyJWT = (req, res, next) => {
   })
 }
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.hgvq2ef.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -143,6 +143,13 @@ async function run() {
       const item = req.body;
       // console.log(item);
       const result = await selectCollection.insertOne(item);
+      res.send(result);
+    })
+
+    app.delete('/selected/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await selectCollection.deleteOne(query);
       res.send(result);
     })
 
