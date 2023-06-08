@@ -29,6 +29,7 @@ async function run() {
 
     const usersCollection = client.db("summerCamp").collection("users");
     const classCollection = client.db("summerCamp").collection("classes");
+    const instructorCollection = client.db("summerCamp").collection("instructors");
 
 
     app.post('/jwt', (req, res) => {
@@ -63,6 +64,17 @@ async function run() {
       // all classes
     app.get('/classes', async (req, res) => {
       const result = await classCollection.find().toArray();
+      res.send(result);
+    })
+    
+    // Instructor related apis
+    app.get('/instructor', async (req, res) => {
+      const result = await instructorCollection.find().limit(6).toArray();
+      res.send(result);
+    })
+      // all classes
+    app.get('/instructors', async (req, res) => {
+      const result = await instructorCollection.find().toArray();
       res.send(result);
     })
 
