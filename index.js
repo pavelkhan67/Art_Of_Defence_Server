@@ -45,7 +45,6 @@ async function run() {
 
     const usersCollection = client.db("summerCamp").collection("users");
     const classCollection = client.db("summerCamp").collection("classes");
-    const addedCollection = client.db("summerCamp").collection("addedclass");
     const instructorCollection = client.db("summerCamp").collection("instructors");
     const selectCollection = client.db("summerCamp").collection("selected");
     const paymentCollection = client.db("summerCamp").collection("payment");
@@ -161,9 +160,40 @@ async function run() {
     })
 
     // Instructor added class
+    app.get('/addedclass', async (req, res) => {
+      const query = { $or: [ {status: 'pending'}, {status: 'approved'}, {status: 'denied'} ]} ;
+      const result = await classCollection.find(query).toArray();
+      res.send(result);
+    })
+    app.patch('/addedclass/approve/:id', async (req, res) => {
+      const id = req.params.id;
+      console.log(id);
+      const filter = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          status: 'approved'
+        },
+      };
+      const result = await classCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    })
+    
+    app.patch('/addedclass/deny/:id', async (req, res) => {
+      const id = req.params.id;
+      console.log(id);
+      const filter = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          status: 'denied'
+        },
+      };
+      const result = await classCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    })
+
     app.post('/addedclass', verifyJWT, async (req, res) => {
       const newItem = req.body;
-      const result = await addedCollection.insertOne(newItem)
+      const result = await classCollection.insertOne(newItem)
       res.send(result);
     })
 
