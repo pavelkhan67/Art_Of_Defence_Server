@@ -35,20 +35,26 @@ const client = new MongoClient(uri, {
     version: ServerApiVersion.v1,
     strict: true,
     deprecationErrors: true,
-  }
+  },
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  maxPoolSize: 10,
 });
 
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    client.connect(err => {
+      if (err) {
+        console.error(err);
+        return;
+      }
+    });
 
     const usersCollection = client.db("summerCamp").collection("users");
     const classCollection = client.db("summerCamp").collection("classes");
-    const instructorCollection = client.db("summerCamp").collection("instructors");
     const selectCollection = client.db("summerCamp").collection("selected");
     const paymentCollection = client.db("summerCamp").collection("payment");
-    
 
 
     app.post('/jwt', (req, res) => {
@@ -153,7 +159,7 @@ async function run() {
       const result = await classCollection.find(query, options).limit(6).toArray();
       res.send(result);
     })
-      // all classes
+    // all classes
     app.get('/classes', async (req, res) => {
       const result = await classCollection.find().toArray();
       res.send(result);
@@ -161,10 +167,11 @@ async function run() {
 
     // Instructor added class
     app.get('/addedclass', async (req, res) => {
-      const query = { $or: [ {status: 'pending'}, {status: 'approved'}, {status: 'denied'} ]} ;
+      const query = { $or: [{ status: 'pending' }, { status: 'approved' }, { status: 'denied' }] };
       const result = await classCollection.find(query).toArray();
       res.send(result);
     })
+
     app.patch('/addedclass/approve/:id', async (req, res) => {
       const id = req.params.id;
       console.log(id);
@@ -177,7 +184,7 @@ async function run() {
       const result = await classCollection.updateOne(filter, updateDoc);
       res.send(result);
     })
-    
+
     app.patch('/addedclass/deny/:id', async (req, res) => {
       const id = req.params.id;
       console.log(id);
@@ -199,12 +206,14 @@ async function run() {
 
     // Instructor related apis
     app.get('/instructor', async (req, res) => {
-      const result = await instructorCollection.find().limit(6).toArray();
+      const query = { role: 'instructor' };
+      const result = await usersCollection.find(query).limit(6).toArray();
       res.send(result);
     })
-      // all instructors
+    // all instructors
     app.get('/instructors', async (req, res) => {
-      const result = await instructorCollection.find().toArray();
+      const query = { role: 'instructor' };
+      const result = await usersCollection.find(query).toArray();
       res.send(result);
     })
 
@@ -261,7 +270,7 @@ async function run() {
         res.send([]);
       }
       const query = { email: email };
-      const result = await paymentCollection.find(query).sort({"date":-1}).toArray();
+      const result = await paymentCollection.find(query).sort({ "date": -1 }).toArray();
       res.send(result);
     })
 
