@@ -45,6 +45,7 @@ async function run() {
 
     const usersCollection = client.db("summerCamp").collection("users");
     const classCollection = client.db("summerCamp").collection("classes");
+    const addedCollection = client.db("summerCamp").collection("addedclass");
     const instructorCollection = client.db("summerCamp").collection("instructors");
     const selectCollection = client.db("summerCamp").collection("selected");
     const paymentCollection = client.db("summerCamp").collection("payment");
@@ -156,6 +157,13 @@ async function run() {
       // all classes
     app.get('/classes', async (req, res) => {
       const result = await classCollection.find().toArray();
+      res.send(result);
+    })
+
+    // Instructor added class
+    app.post('/addedclass', verifyJWT, async (req, res) => {
+      const newItem = req.body;
+      const result = await addedCollection.insertOne(newItem)
       res.send(result);
     })
 
